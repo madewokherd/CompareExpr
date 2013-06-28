@@ -78,6 +78,29 @@ namespace CompareExprTest
                     continue;
                 }
 
+                if (line.StartsWith("tostring "))
+                {
+                    PivotsExpression expr = PivotsExpression.ReadExpression(pivots, new PivotsExpression.GetChoiceDelegate(GetChoice), line.Substring(9));
+                    Console.WriteLine(expr.ToString());
+                    continue;
+                }
+
+                if (line.StartsWith("hash "))
+                {
+                    PivotsExpression expr = PivotsExpression.ReadExpression(pivots, new PivotsExpression.GetChoiceDelegate(GetChoice), line.Substring(5));
+                    Console.WriteLine(expr.GetHashCode());
+                    continue;
+                }
+
+                if (line.StartsWith("compare "))
+                {
+                    var parts = line.Split(' ');
+                    PivotsExpression expr1 = PivotsExpression.ReadExpression(pivots, new PivotsExpression.GetChoiceDelegate(GetChoice), parts[1]);
+                    PivotsExpression expr2 = PivotsExpression.ReadExpression(pivots, new PivotsExpression.GetChoiceDelegate(GetChoice), parts[2]);
+                    Console.WriteLine(expr1.Equals(expr2));
+                    continue;
+                }
+
                 Console.WriteLine("unrecognized command");
             }
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
+using System.Text;
 
 public class ClrPlusException : Exception {
     public ClrPlusException(string s)
@@ -58,17 +59,53 @@ namespace CompareExpr
 
         public override bool Equals(object obj)
         {
+            if (obj is PivotsExpression)
+            {
+                PivotsExpression expr = obj as PivotsExpression;
+                if (expr.invariant != this.invariant)
+                    return false;
+                if (this.invariant)
+                    return expr.invariant_result == this.invariant_result;
+                return matching_combinations.Equals(expr.matching_combinations);
+            }
             return base.Equals(obj);
         }
 
         public override string ToString()
         {
-            return base.ToString();
+            if (invariant)
+            {
+                if (invariant_result)
+                    return "PivotsExpression.TrueExpression";
+                else
+                    return "PivotsExpression.FalseExpression";
+            }
+            StringBuilder res = new StringBuilder();
+            bool first_combination = true;
+            foreach (var combination in matching_combinations)
+            {
+                if (!first_combination)
+                    res.Append("|");
+                res.Append("(");
+                bool first_value = true;
+                foreach (var item in combination)
+                {
+                    if (!first_value)
+                        res.Append(",");
+                    res.Append(item);
+                    first_value = false;
+                }
+                res.Append(")");
+                first_combination = false;
+            }
+            return res.ToString();
         }
 
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            if (invariant)
+                return invariant_result ? 132581999 : 1549646950;
+            return matching_combinations.GetHashCode();
         }
 
         public IEnumerable<IEnumerable<string>> GetCombinations()
